@@ -12,7 +12,7 @@ interface ApiService{
     @GET("pokemon")
     suspend fun  getAllPokemon():List<Pockemon>
 }
-private var BASE_URL="https://tyradex.tech/api/v1/"
+private var BASE_URL="https://tyradex.vercel.app/api/v1/"
 
 private val retrofit: Retrofit = Retrofit.Builder()
     .addConverterFactory(GsonConverterFactory.create()) // For JSON parsing

@@ -32,7 +32,7 @@ fun PokApp() {
         Surface(
             modifier = Modifier.fillMaxSize()
         ) {
-            val pokViewModel: PokViewModel = viewModel()
+            val pokViewModel: PokViewModel = viewModel(factory = PokViewModel.Factory)
             HomeScreen(
                 pokUiState = pokViewModel.pockUiState,
                 contentPadding = it

@@ -10,7 +10,15 @@ import com.example.retrofitandgson.model.Pockemon
 import com.example.retrofitandgson.network.PockApi
 import java.io.IOException
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.retrofitandgson.PokemonApplication
+import com.example.retrofitandgson.data.NetworkPokemonRepository
+import com.example.retrofitandgson.data.PokemonRepository
+import com.example.retrofitandgson.network.PockApi.retrofitService
 import kotlinx.coroutines.launch
 
 
@@ -19,9 +27,10 @@ sealed interface PockUiState {
     object Error : PockUiState
     object Loading : PockUiState
 }
+
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-class PokViewModel:ViewModel() {
-    /** The mutable State that stores the status of the most recent request */
+class PokViewModel(private val pokemonRepository: PokemonRepository):ViewModel(){
+/** The mutable State that stores the status of the most recent request */
     var pockUiState: PockUiState by mutableStateOf(PockUiState.Loading)
         private set
 
@@ -35,7 +44,8 @@ class PokViewModel:ViewModel() {
         viewModelScope.launch {
 
             pockUiState = try {
-                val listResult = PockApi.retrofitService.getAllPokemon()
+
+                val listResult = pokemonRepository.getAllPokemon()
                 PockUiState.Success(
                     listResult
                 )
@@ -43,6 +53,15 @@ class PokViewModel:ViewModel() {
                 PockUiState.Error
             } catch (e: HttpException) {
                 PockUiState.Error
+            }
+        }
+    }
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as PokemonApplication)
+                val pokemonRepository = application.container.pokemonRepository
+                PokViewModel(pokemonRepository = pokemonRepository)
             }
         }
     }
